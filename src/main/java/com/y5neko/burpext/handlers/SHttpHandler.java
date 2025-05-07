@@ -111,15 +111,21 @@ public class SHttpHandler implements HttpHandler {
     }
 
     /**
-     * 检测请求
+     * 检测请求<br><b>detector为null时默认仅进行响应关键字检测</b>
      * @param httpRequestToBeSent 请求对象
      * @param detectionMode 检测模式
      */
     private static void detect(HttpRequestToBeSent httpRequestToBeSent, String detectionMode, Detector detector, boolean isKeywordsDetect, Logging logging) {
-        if (detectionMode.equals("暴力模式（谨慎开启）") && detector != null) {
+        if (detectionMode.equals("暴力模式（谨慎开启）") && detector == null) {
             new BruteDetect(httpRequestToBeSent, detector, isKeywordsDetect, logging);
         }
-        else if (detectionMode.equals("参数关键字") && detector!= null) {
+        else if (detectionMode.equals("参数关键字") && detector == null) {
+            new KeywordsDetect(httpRequestToBeSent, detector, isKeywordsDetect, logging);
+        }
+        else if (detectionMode.equals("暴力模式（谨慎开启）")) {
+            new BruteDetect(httpRequestToBeSent, detector, isKeywordsDetect, logging);
+        }
+        else if (detectionMode.equals("参数关键字")) {
             new KeywordsDetect(httpRequestToBeSent, detector, isKeywordsDetect, logging);
         }
         else {

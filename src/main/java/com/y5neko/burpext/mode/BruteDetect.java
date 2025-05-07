@@ -48,71 +48,74 @@ public class BruteDetect {
             // 定义一个对象接收修改后的请求
             HttpRequest modifiedRequest = httpRequestToBeSent.withDefaultHeaders();
 
-            // ============================ 先处理请求头 =======================
-            List<HttpHeader> headers = httpRequestToBeSent.headers();
-            for (HttpHeader header : headers) {
-                for (int i = 0; i < headersRules.size(); i++) {
-                    JSONObject rule = headersRules.getJSONObject(i);
-                    String ruleString = rule.getString("rule");
-                    String keywordString = rule.getString("keyword");
-                    // 判断匹配规则
-                    switch (ruleString) {
-                        case "包含":
-                            if (header.name().contains(keywordString)) {
-                                String payload = "http://" + header.name() + "y5neko" + MiscUtils.getRamdomString(10) + "." + detector.getFullDomain();
-                                modifiedRequest = modifiedRequest.withHeader(header.name(), payload);
-                            }
-                            break;
-                        case "完全匹配":
-                            if (header.name().equals(keywordString)) {
-                                String payload = "http://" + header.name() + "y5neko" + MiscUtils.getRamdomString(10) + "." + detector.getFullDomain();
-                                modifiedRequest = modifiedRequest.withHeader(header.name(), payload);
-                            }
-                            break;
-                        case "正则(包含)":
-                            Pattern pattern = Pattern.compile(keywordString);
-                            Matcher matcher = pattern.matcher(header.name());
-                            if (matcher.find()) {
-                                String payload = "http://" + header.name() + "y5neko" + MiscUtils.getRamdomString(10) + "." + detector.getFullDomain();
-                                modifiedRequest = modifiedRequest.withHeader(header.name(), payload);
-                            }
-                            break;
-                        case "正则(完全匹配)":
-                            if (header.name().matches(keywordString)) {
-                                String payload = "http://" + header.name() + "y5neko" + MiscUtils.getRamdomString(10) + "." + detector.getFullDomain();
-                                modifiedRequest = modifiedRequest.withHeader(header.name(), payload);
-                            }
-                            break;
+            // >>>>>>>>>>>>>>>不传入detector时，不采用dnslog检测
+            if (detector != null) {
+                // ============================ 先处理请求头 =======================
+                List<HttpHeader> headers = httpRequestToBeSent.headers();
+                for (HttpHeader header : headers) {
+                    for (int i = 0; i < headersRules.size(); i++) {
+                        JSONObject rule = headersRules.getJSONObject(i);
+                        String ruleString = rule.getString("rule");
+                        String keywordString = rule.getString("keyword");
+                        // 判断匹配规则
+                        switch (ruleString) {
+                            case "包含":
+                                if (header.name().contains(keywordString)) {
+                                    String payload = "http://" + header.name() + "y5neko" + MiscUtils.getRamdomString(10) + "." + detector.getFullDomain();
+                                    modifiedRequest = modifiedRequest.withHeader(header.name(), payload);
+                                }
+                                break;
+                            case "完全匹配":
+                                if (header.name().equals(keywordString)) {
+                                    String payload = "http://" + header.name() + "y5neko" + MiscUtils.getRamdomString(10) + "." + detector.getFullDomain();
+                                    modifiedRequest = modifiedRequest.withHeader(header.name(), payload);
+                                }
+                                break;
+                            case "正则(包含)":
+                                Pattern pattern = Pattern.compile(keywordString);
+                                Matcher matcher = pattern.matcher(header.name());
+                                if (matcher.find()) {
+                                    String payload = "http://" + header.name() + "y5neko" + MiscUtils.getRamdomString(10) + "." + detector.getFullDomain();
+                                    modifiedRequest = modifiedRequest.withHeader(header.name(), payload);
+                                }
+                                break;
+                            case "正则(完全匹配)":
+                                if (header.name().matches(keywordString)) {
+                                    String payload = "http://" + header.name() + "y5neko" + MiscUtils.getRamdomString(10) + "." + detector.getFullDomain();
+                                    modifiedRequest = modifiedRequest.withHeader(header.name(), payload);
+                                }
+                                break;
+                        }
                     }
                 }
-            }
-            // ============================ 暴力处理其它 ========================
-            // GET参数
-            List<ParsedHttpParameter> httpParametersUrl = modifiedRequest.parameters(HttpParameterType.URL);
-            for (ParsedHttpParameter httpParameterUrl : httpParametersUrl) {
-                // 创建一个检测的payload，用于匹配成功后的参数，存储
-                String payload = "http://" + httpParameterUrl.name() + "y5neko" + MiscUtils.getRamdomString(10) + "." + detector.getFullDomain();
-                modifiedRequest = modifiedRequest.withParameter(HttpParameter.urlParameter(httpParameterUrl.name(), payload));
-            }
-            // POST参数
-            List<ParsedHttpParameter> httpParametersBody = modifiedRequest.parameters(HttpParameterType.BODY);
-            for (ParsedHttpParameter httpParameterBody : httpParametersBody) {
-                // 创建一个检测的payload，用于匹配成功后的参数，存储
-                String payload = "http://" + httpParameterBody.name() + "y5neko" + MiscUtils.getRamdomString(10) + "." + detector.getFullDomain();
-                modifiedRequest = modifiedRequest.withParameter(HttpParameter.bodyParameter(httpParameterBody.name(), payload));
-            }
-            // JSON参数
-            List<ParsedHttpParameter> httpParametersJson = modifiedRequest.parameters(HttpParameterType.JSON);
-            // 有json参数时才进行json处理
-            if (!httpParametersJson.isEmpty()) {
-                try {
-                    String jsonBody = modifiedRequest.bodyToString();
-                    // 处理json参数
-                    JSONObject jsonObject = JSON.parseObject(jsonBody);
-                    JSONUtils.replaceAllJsonValues4Detect(jsonObject, detector.getFullDomain());
-                    modifiedRequest = modifiedRequest.withBody(jsonObject.toJSONString());
-                } catch (Exception e) {
-                    logging.logToError("JSON解析错误，跳过处理");
+                // ============================ 暴力处理其它 ========================
+                // GET参数
+                List<ParsedHttpParameter> httpParametersUrl = modifiedRequest.parameters(HttpParameterType.URL);
+                for (ParsedHttpParameter httpParameterUrl : httpParametersUrl) {
+                    // 创建一个检测的payload，用于匹配成功后的参数，存储
+                    String payload = "http://" + httpParameterUrl.name() + "y5neko" + MiscUtils.getRamdomString(10) + "." + detector.getFullDomain();
+                    modifiedRequest = modifiedRequest.withParameter(HttpParameter.urlParameter(httpParameterUrl.name(), payload));
+                }
+                // POST参数
+                List<ParsedHttpParameter> httpParametersBody = modifiedRequest.parameters(HttpParameterType.BODY);
+                for (ParsedHttpParameter httpParameterBody : httpParametersBody) {
+                    // 创建一个检测的payload，用于匹配成功后的参数，存储
+                    String payload = "http://" + httpParameterBody.name() + "y5neko" + MiscUtils.getRamdomString(10) + "." + detector.getFullDomain();
+                    modifiedRequest = modifiedRequest.withParameter(HttpParameter.bodyParameter(httpParameterBody.name(), payload));
+                }
+                // JSON参数
+                List<ParsedHttpParameter> httpParametersJson = modifiedRequest.parameters(HttpParameterType.JSON);
+                // 有json参数时才进行json处理
+                if (!httpParametersJson.isEmpty()) {
+                    try {
+                        String jsonBody = modifiedRequest.bodyToString();
+                        // 处理json参数
+                        JSONObject jsonObject = JSON.parseObject(jsonBody);
+                        JSONUtils.replaceAllJsonValues4Detect(jsonObject, detector.getFullDomain());
+                        modifiedRequest = modifiedRequest.withBody(jsonObject.toJSONString());
+                    } catch (Exception e) {
+                        logging.logToError("JSON解析错误，跳过处理");
+                    }
                 }
             }
             System.out.println(modifiedRequest);
@@ -123,14 +126,22 @@ public class BruteDetect {
             } catch (Exception e) {
                 result = MiscUtils.bytesToBase64(("timeout:" + e.getMessage()).getBytes(StandardCharsets.UTF_8));
             }
-            Thread.sleep(5000);
+            // >>>>>>>>>>>>>>>不传入detector时，不采用dnslog检测
+            if (detector!= null) {
+                Thread.sleep(5000);
+            }
             // =======================检测是否有结果===================
             // 创建一个新字符串暂时储存解base64后的字符串
             String decodedString = MiscUtils.base64StringToStringAutoDetect(result);
 
-            // Dnslog
-            String dnslogResult = detector.getResult();
-            List<String> dnslogMatches = RuleMatcherUtils.paramsMatches(dnslogResult);
+            // >>>>>>>>>>>>>>>不传入detector时，不采用dnslog检测
+            String dnslogResult = "";
+            List<String> dnslogMatches = List.of();
+            if (detector != null) {
+                // Dnslog
+                dnslogResult = detector.getResult();
+                dnslogMatches = RuleMatcherUtils.paramsMatches(dnslogResult);
+            }
             // 响应关键字
             if (isKeywordsDetect && responseRules != null && !decodedString.equals("超时")) {
                 for (int i = 0; i < responseRules.size(); i++) {
@@ -167,11 +178,14 @@ public class BruteDetect {
                     }
                 }
             }
-            if (dnslogResult.length() > 10) {
-                hasVulnerability = true;
-            }
-            if (!dnslogMatches.isEmpty()) {
-                vulParameters.addAll(dnslogMatches);
+            // >>>>>>>>>>>>>>>不传入detector时，不采用dnslog检测
+            if (detector!= null) {
+                if (dnslogResult.length() > 10) {
+                    hasVulnerability = true;
+                }
+                if (!dnslogMatches.isEmpty()) {
+                    vulParameters.addAll(dnslogMatches);
+                }
             }
             if (vulParameters.isEmpty() && hasVulnerability) {
                 vulParameters.add("未识别到参数，请人工判断");
