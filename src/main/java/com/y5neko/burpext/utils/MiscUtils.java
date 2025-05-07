@@ -29,21 +29,21 @@ public class MiscUtils {
     }
 
     /**
-     * base64转字节码
+     * base64字符串转字节码
      * @param base64 base64字符串
      * @return 字节码
      */
-    public static byte[] base64ToBytes(String base64) {
+    public static byte[] base64StringToBytes(String base64) {
         return Base64.getDecoder().decode(base64);
     }
 
     /**
-     * base64字节码转字符串（自动识别编码）
+     * base64字符串转字符串（自动识别编码）
      * @param base64 base64字符串
      * @return 字符串
      */
     public static String base64StringToStringAutoDetect(String base64) {
-        byte[] bytes = base64ToBytes(base64);
+        byte[] bytes = base64StringToBytes(base64);
         return CharsetUtils.bytesToString(bytes);
     }
 }

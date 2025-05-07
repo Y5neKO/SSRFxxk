@@ -23,14 +23,14 @@ import java.util.concurrent.Executors;
 import static burp.api.montoya.http.handler.RequestToBeSentAction.continueWith;
 import static com.y5neko.burpext.core.Config.configFilePath;
 
-public class YHttpHandler implements HttpHandler {
+public class SHttpHandler implements HttpHandler {
     private final Logging logging;
 
     // 缓存型线程池
 //    private static final ExecutorService executor = Executors.newCachedThreadPool();
     private static final ExecutorService executor = Executors.newFixedThreadPool(200);
 
-    public YHttpHandler(Logging logging) {
+    public SHttpHandler(Logging logging) {
         this.logging = logging;
     }
 

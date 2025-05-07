@@ -38,6 +38,8 @@ public class KeywordsDetect {
         try {
             this.detector = detector;
 
+            boolean isDetected = false;
+
             String configJson = FileUtils.readFileToString(configFilePath);
             JSONObject config = JSONObject.parseObject(configJson);
             // 获取请求头关键字和规则
@@ -101,12 +103,14 @@ public class KeywordsDetect {
                             if (httpParameterUrl.name().contains(keywordString)) {
                                 String payload = "http://" + httpParameterUrl.name() + "y5neko" + MiscUtils.getRamdomString(10) + "." + detector.getFullDomain();
                                 modifiedRequest = modifiedRequest.withParameter(HttpParameter.urlParameter(httpParameterUrl.name(), payload));
+                                isDetected = true;
                             }
                             break;
                         case "完全匹配":
                             if (httpParameterUrl.name().equals(keywordString)) {
                                 String payload = "http://" + httpParameterUrl.name() + "y5neko" + MiscUtils.getRamdomString(10) + "." + detector.getFullDomain();
                                 modifiedRequest = modifiedRequest.withParameter(HttpParameter.urlParameter(httpParameterUrl.name(), payload));
+                                isDetected = true;
                             }
                             break;
                         case "正则(包含)":
@@ -115,12 +119,14 @@ public class KeywordsDetect {
                             if (matcher.find()) {
                                 String payload = "http://" + httpParameterUrl.name() + "y5neko" + MiscUtils.getRamdomString(10) + "." + detector.getFullDomain();
                                 modifiedRequest = modifiedRequest.withParameter(HttpParameter.urlParameter(httpParameterUrl.name(), payload));
+                                isDetected = true;
                             }
                             break;
                         case "正则(完全匹配)":
                             if (httpParameterUrl.name().matches(keywordString)) {
                                 String payload = "http://" + httpParameterUrl.name() + "y5neko" + MiscUtils.getRamdomString(10) + "." + detector.getFullDomain();
                                 modifiedRequest = modifiedRequest.withParameter(HttpParameter.urlParameter(httpParameterUrl.name(), payload));
+                                isDetected = true;
                             }
                             break;
                     }
@@ -138,12 +144,14 @@ public class KeywordsDetect {
                             if (httpParameterBody.name().contains(keywordString)) {
                                 String payload = "http://" + httpParameterBody.name() + "y5neko" + MiscUtils.getRamdomString(10) + "." + detector.getFullDomain();
                                 modifiedRequest = modifiedRequest.withParameter(HttpParameter.bodyParameter(httpParameterBody.name(), payload));
+                                isDetected = true;
                             }
                             break;
                         case "完全匹配":
                             if (httpParameterBody.name().equals(keywordString)) {
                                 String payload = "http://" + httpParameterBody.name() + "y5neko" + MiscUtils.getRamdomString(10) + "." + detector.getFullDomain();
                                 modifiedRequest = modifiedRequest.withParameter(HttpParameter.bodyParameter(httpParameterBody.name(), payload));
+                                isDetected = true;
                             }
                             break;
                         case "正则(包含)":
@@ -152,12 +160,14 @@ public class KeywordsDetect {
                             if (matcher.find()) {
                                 String payload = "http://" + httpParameterBody.name() + "y5neko" + MiscUtils.getRamdomString(10) + "." + detector.getFullDomain();
                                 modifiedRequest = modifiedRequest.withParameter(HttpParameter.bodyParameter(httpParameterBody.name(), payload));
+                                isDetected = true;
                             }
                             break;
                         case "正则(完全匹配)":
                             if (httpParameterBody.name().matches(keywordString)) {
                                 String payload = "http://" + httpParameterBody.name() + "y5neko" + MiscUtils.getRamdomString(10) + "." + detector.getFullDomain();
                                 modifiedRequest = modifiedRequest.withParameter(HttpParameter.bodyParameter(httpParameterBody.name(), payload));
+                                isDetected = true;
                             }
                             break;
                     }
@@ -173,11 +183,16 @@ public class KeywordsDetect {
                     JSONObject jsonObject = JSON.parseObject(jsonBody);
                     JSONUtils.replaceAllJsonValues4DetectWithRules(jsonObject, detector.getFullDomain(), parametersRules);
                     modifiedRequest = modifiedRequest.withBody(jsonObject.toJSONString());
+                    isDetected = true;
                 } catch (Exception e) {
                     logging.logToError("JSON解析错误，跳过处理");
                 }
             }
             System.out.println(modifiedRequest);
+            // 判断是否需要继续检测
+            if (!isDetected) {
+                return;
+            }
             // 尝试发送请求，有些情况下服务器解析dnslog域名时会超时，直接忽略返回结果就行
             String result;
             try {
@@ -187,11 +202,14 @@ public class KeywordsDetect {
             }
             Thread.sleep(5000);
             // =======================检测是否有结果===================
+            // 创建一个新字符串暂时储存解base64后的字符串
+            String decodedString = MiscUtils.base64StringToStringAutoDetect(result);
+
             // Dnslog
             String dnslogResult = detector.getResult();
             List<String> dnslogMatches = RuleMatcherUtils.paramsMatches(dnslogResult);
             // 响应关键字
-            if (isKeywordsDetect && responseRules != null && !result.equals("超时")) {
+            if (isKeywordsDetect && responseRules != null && !decodedString.equals("超时")) {
                 for (int i = 0; i < responseRules.size(); i++) {
                     JSONObject ruleObj = responseRules.getJSONObject(i);
                     String ruleType = ruleObj.getString("rule");
@@ -202,19 +220,19 @@ public class KeywordsDetect {
                         boolean resultMatched = false;
                         if ("包含".equalsIgnoreCase(ruleType)) {
                             // 包含匹配
-                            resultMatched = result.contains(keyword);
+                            resultMatched = decodedString.contains(keyword);
                         }
                         else if ("完全匹配".equalsIgnoreCase(ruleType)) {
-                            resultMatched = result.equalsIgnoreCase(keyword);
+                            resultMatched = decodedString.equalsIgnoreCase(keyword);
                         }
                         else if ("正则(包含)".equalsIgnoreCase(ruleType)) {
                             // 正则匹配（部分匹配）
                             Pattern pattern = Pattern.compile(keyword);
-                            resultMatched = pattern.matcher(result).find();
+                            resultMatched = pattern.matcher(decodedString).find();
                         }
                         else if ("正则(完全匹配)".equalsIgnoreCase(ruleType)) {
                             // 正则匹配（完全匹配）
-                            resultMatched = result.matches(keyword);
+                            resultMatched = decodedString.matches(keyword);
                         }
                         if (resultMatched) {
                             hasVulnerability = true;
@@ -226,7 +244,7 @@ public class KeywordsDetect {
                     }
                 }
             }
-            if (dnslogResult.length() > 10) {
+            if (dnslogResult.length() > 20) {
                 hasVulnerability = true;
             }
             if (!dnslogMatches.isEmpty()) {
@@ -234,6 +252,7 @@ public class KeywordsDetect {
             }
             if (vulParameters.isEmpty() && hasVulnerability) {
                 vulParameters.add("未识别到参数，请人工判断");
+                logging.logToOutput(dnslogResult);
             }
             if (hasVulnerability) {
                 logging.logToOutput("检测到漏洞，url为:\n" + httpRequestToBeSent.url() + "\n参数列表为:\n" + vulParameters);
@@ -245,7 +264,7 @@ public class KeywordsDetect {
                     httpRequestToBeSent.url(),
                     hasVulnerability,
                     vulParameters,
-                    modifiedRequest.toString(),
+                    MiscUtils.bytesToBase64(modifiedRequest.toString().getBytes()),
                     result,
                     "参数关键字"
             );

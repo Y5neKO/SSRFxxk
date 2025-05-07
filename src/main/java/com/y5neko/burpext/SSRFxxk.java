@@ -3,9 +3,8 @@ package com.y5neko.burpext;
 import burp.api.montoya.BurpExtension;
 import burp.api.montoya.MontoyaApi;
 import burp.api.montoya.logging.Logging;
-import com.y5neko.burpext.dao.LogDAO;
 import com.y5neko.burpext.detector.DigPm;
-import com.y5neko.burpext.handlers.YHttpHandler;
+import com.y5neko.burpext.handlers.SHttpHandler;
 import com.y5neko.burpext.ui.MainUI;
 
 import static com.y5neko.burpext.core.Config.EXTENSION_NAME;
@@ -32,7 +31,7 @@ public class SSRFxxk implements BurpExtension
         logging.logToOutput("====================");
 
         // 注册组件
-        api.http().registerHttpHandler(new YHttpHandler(logging));
+        api.http().registerHttpHandler(new SHttpHandler(logging));
         api.userInterface().registerSuiteTab("SSRFxxk", new MainUI(api, logging));
 
         // 检查dnslog平台状态

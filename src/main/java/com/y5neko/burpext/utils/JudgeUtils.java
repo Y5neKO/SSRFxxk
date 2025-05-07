@@ -4,7 +4,7 @@ import burp.api.montoya.http.handler.HttpRequestToBeSent;
 
 public class JudgeUtils {
     /**
-     * 判断请求是否在白名单中
+     * 判断请求是否在白名单中(不填默认全部处理)
      * @param request 待判断的请求
      * @param whiteListRules 白名单规则数组
      * @return 是否在白名单中
@@ -14,7 +14,7 @@ public class JudgeUtils {
         String host = request.httpService().host();
         String port = String.valueOf(request.httpService().port());
 
-        if (whiteListRules == null || whiteListRules.length == 0) return true;
+        if (whiteListRules == null || (whiteListRules.length == 1 && whiteListRules[0].isEmpty())) return true;
 
         for (String rule : whiteListRules) {
             // URL规则匹配（带协议）

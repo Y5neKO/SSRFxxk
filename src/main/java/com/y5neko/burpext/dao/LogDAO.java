@@ -36,6 +36,9 @@ public class LogDAO {
         return instance;
     }
 
+    /**
+     * 初始化数据库
+     */
     private void initDatabase() {
         // 注册数据库驱动
         try {
@@ -61,6 +64,10 @@ public class LogDAO {
         }
     }
 
+    /**
+     * 插入日志
+     * @param log 日志对象
+     */
     public void insertLog(LogEntry log) {
         String sql = "INSERT INTO log (url, hasVul, vulParams, request, response, time, description) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DriverManager.getConnection(DB_URL);
@@ -78,6 +85,11 @@ public class LogDAO {
         }
     }
 
+    /**
+     * 根据ID获取日志
+     * @param id 日志ID
+     * @return 日志对象
+     */
     public LogEntry getLogById(int id) {
         String sql = "SELECT * FROM log WHERE id = ?";
         try (Connection conn = DriverManager.getConnection(DB_URL);
@@ -102,6 +114,10 @@ public class LogDAO {
         return null;
     }
 
+    /**
+     * 根据ID删除日志
+     * @param id 日志ID
+     */
     public void deleteLogById(int id) {
         String sql = "DELETE FROM log WHERE id = ?";
         try (Connection conn = DriverManager.getConnection(DB_URL);
@@ -113,6 +129,9 @@ public class LogDAO {
         }
     }
 
+    /**
+     * 清空日志和主键自增序列
+     */
     public void clearLogs() {
         try (Connection conn = DriverManager.getConnection(DB_URL);
              Statement stmt = conn.createStatement()) {
@@ -123,6 +142,10 @@ public class LogDAO {
         }
     }
 
+    /**
+     * 正序获取所有日志
+     * @return 所有日志列表
+     */
     public List<LogEntry> getAllLogs() {
         List<LogEntry> logs = new ArrayList<>();
         String sql = "SELECT * FROM log ORDER BY id";
@@ -149,7 +172,9 @@ public class LogDAO {
     }
 
 
-    // 日志实体类
+    /**
+     * 日志实体类
+     */
     public static class LogEntry {
         private final int id;
         private final String url;
@@ -175,6 +200,10 @@ public class LogDAO {
             this(0, url, hasVul, vulParams, request, response, getCurrentTime(), description);
         }
 
+        /**
+         * 获取当前时间
+         * @return 格式化后的当前时间字符串
+         */
         private static String getCurrentTime() {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             return sdf.format(new Date());

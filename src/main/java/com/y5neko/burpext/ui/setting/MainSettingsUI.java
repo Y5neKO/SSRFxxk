@@ -83,7 +83,7 @@ public class MainSettingsUI {
             if (opt.equals("参数关键字")) {
                 radioButton.setSelected(true);
             } else {
-                radioButton.setToolTipText("暴力模式会强行对所有参数进行检测，流量非常大，在授权状态下可能导致污染业务数据，谨慎开启！！！");
+                radioButton.setToolTipText("暴力模式会强行对所有参数进行检测，流量非常大，在授权状态下可能导致污染业务数据，谨慎开启！！！\n暴力模式对Dnslog平台压力也比较大，容易被Dnslog平台限流导致误报，强烈建议自行构建相关参数字典再进行检测");
                 radioButton.setFocusPainted(false);
             }
             detectionModesGroup.add(radioButton);
@@ -104,7 +104,7 @@ public class MainSettingsUI {
         whiteListArea.setEditable(true);
         whiteListArea.setLineWrap(true);
         whiteListArea.setWrapStyleWord(true);
-        whiteListArea.setToolTipText("每行一个域名或地址，支持通配符*");
+        whiteListArea.setToolTipText("每行一个域名或地址，支持通配符*\n不填默认全部处理");
         // 将文本域放入滚动面板
         JScrollPane scrollPane = new JScrollPane(whiteListArea);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS); // 确保垂直滚动条始终存在
