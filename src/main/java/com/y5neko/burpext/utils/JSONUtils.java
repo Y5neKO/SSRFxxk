@@ -88,8 +88,9 @@ public class JSONUtils {
      * @param jsonObject JSON对象
      * @param suffix 域名后缀
      * @param paramsRules 规则列表
+     * @param isDetected 是否检测到
      */
-    public static void replaceAllJsonValues4DetectWithRules(JSONObject jsonObject, String suffix, JSONArray paramsRules) {
+    public static void replaceAllJsonValues4DetectWithRules(JSONObject jsonObject, String suffix, JSONArray paramsRules, boolean isDetected) {
         for (String key : jsonObject.keySet()) {
             Object value = jsonObject.get(key);
 
@@ -100,20 +101,21 @@ public class JSONUtils {
                 String payload = "http://" + key + "y5neko" + MiscUtils.getRamdomString(10) + "." + suffix;
                 // 保留原值类型处理
                 if (value instanceof JSONObject) {
-                    replaceAllJsonValues4DetectWithRules((JSONObject) value, suffix, paramsRules);
+                    replaceAllJsonValues4DetectWithRules((JSONObject) value, suffix, paramsRules, isDetected);
                     jsonObject.put(key, value); // 保留结构，仅处理嵌套
                 } else if (value instanceof JSONArray) {
-                    replaceAllJsonArrayValues4DetectWithRules((JSONArray) value, suffix, paramsRules);
+                    replaceAllJsonArrayValues4DetectWithRules((JSONArray) value, suffix, paramsRules, isDetected);
                     jsonObject.put(key, value);
                 } else {
                     jsonObject.put(key, payload);
+                    isDetected = true;
                 }
             } else {
                 // 不匹配时递归处理嵌套结构但不修改值
                 if (value instanceof JSONObject) {
-                    replaceAllJsonValues4DetectWithRules((JSONObject) value, suffix, paramsRules);
+                    replaceAllJsonValues4DetectWithRules((JSONObject) value, suffix, paramsRules, isDetected);
                 } else if (value instanceof JSONArray) {
-                    replaceAllJsonArrayValues4DetectWithRules((JSONArray) value, suffix, paramsRules);
+                    replaceAllJsonArrayValues4DetectWithRules((JSONArray) value, suffix, paramsRules, isDetected);
                 }
             }
         }
@@ -124,8 +126,9 @@ public class JSONUtils {
      * @param jsonArray JSON数组
      * @param suffix 域名后缀
      * @param paramsRules 规则列表
+     * @param isDetected 是否检测到
      */
-    public static void replaceAllJsonArrayValues4DetectWithRules(JSONArray jsonArray, String suffix, JSONArray paramsRules) {
+    public static void replaceAllJsonArrayValues4DetectWithRules(JSONArray jsonArray, String suffix, JSONArray paramsRules, boolean isDetected) {
         for (int i = 0; i < jsonArray.size(); i++) {
             Object value = jsonArray.get(i);
 
@@ -133,11 +136,12 @@ public class JSONUtils {
             String payload = "http://arrayy5neko" + MiscUtils.getRamdomString(10) + "." + suffix;
 
             if (value instanceof JSONObject) {
-                replaceAllJsonValues4DetectWithRules((JSONObject) value, suffix, paramsRules);
+                replaceAllJsonValues4DetectWithRules((JSONObject) value, suffix, paramsRules, isDetected);
             } else if (value instanceof JSONArray) {
-                replaceAllJsonArrayValues4DetectWithRules((JSONArray) value, suffix, paramsRules);
+                replaceAllJsonArrayValues4DetectWithRules((JSONArray) value, suffix, paramsRules, isDetected);
             } else {
                 jsonArray.set(i, payload);
+                isDetected = true;
             }
         }
     }

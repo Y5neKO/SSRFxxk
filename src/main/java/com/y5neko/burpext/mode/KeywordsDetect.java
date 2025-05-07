@@ -38,8 +38,10 @@ public class KeywordsDetect {
         try {
             this.detector = detector;
 
+            // 定义一个布尔值，用于判断是否需要做检测处理
             boolean isDetected = false;
 
+            // 先读取配置文件
             String configJson = FileUtils.readFileToString(configFilePath);
             JSONObject config = JSONObject.parseObject(configJson);
             // 获取请求头关键字和规则
@@ -181,9 +183,8 @@ public class KeywordsDetect {
                     String jsonBody = modifiedRequest.bodyToString();
                     // 处理json参数
                     JSONObject jsonObject = JSON.parseObject(jsonBody);
-                    JSONUtils.replaceAllJsonValues4DetectWithRules(jsonObject, detector.getFullDomain(), parametersRules);
+                    JSONUtils.replaceAllJsonValues4DetectWithRules(jsonObject, detector.getFullDomain(), parametersRules, isDetected);
                     modifiedRequest = modifiedRequest.withBody(jsonObject.toJSONString());
-                    isDetected = true;
                 } catch (Exception e) {
                     logging.logToError("JSON解析错误，跳过处理");
                 }

@@ -244,17 +244,31 @@ public class RawHttpSender {
 //                "url=http://urly5nekoxpvyqkg0r0.c7835d9815.ipv6.1433.eu.org&test=1235";
 
 
-        String request = "GET /content-search.xml HTTP/1.1\n" +
-                "Host: www.baidu.com\n" +
-                "Sec-Fetch-Site: http://Sec-Fetch-Sitey5nekodztdwuehdx.76f3f02e13.ipv6.1433.eu.org\n" +
-                "Sec-Fetch-Mode: no-cors\n" +
-                "Sec-Fetch-Dest: empty\n" +
+        String request = "POST /aichat/api/conversation?inputMethod=chat_search&k_signature=dtJWWYVkAq2RcZ8ljZjiflbxqjjVJiYggaXvYdwoy9hpMBpE%2FhtVE6hTUClpXyv0atapGonnIegh2mvU%2B6lLZzNGs61DNvSWmTtHacbi3qY%3D&k_timestamp=1746600203&word=%E4%BD%A0%E5%95%8A%E5%A5%BD%E5%95%8A HTTP/1.1\n" +
+                "Host: chat-ws.baidu.com\n" +
+                "Cookie: BIDUPSID=481C2E35C86BB9B9EA734B7A11321B49; PSTM=1744351784; BAIDUID=481C2E35C86BB9B9BBCF44081B912DCA:FG=1; H_PS_PSSID=60277_62327_62862_62969_63041_63045_63141_63126_63179; BDORZ=B490B5EBF6F3CD402E515D22BCDA1598; H_WISE_SIDS=60277_62327_62862_62969_63041_63045_63141_63126_63191\n" +
+                "Content-Length: 341\n" +
+                "Sec-Ch-Ua: \"Chromium\";v=\"125\", \"Not.A/Brand\";v=\"24\"\n" +
+                "Accept: text/event-stream\n" +
+                "Content-Type: application/json\n" +
+                "Sec-Ch-Ua-Mobile: ?0\n" +
                 "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.6422.60 Safari/537.36\n" +
+                "Sec-Ch-Ua-Platform: \"macOS\"\n" +
+                "Origin: https://www.baidu.com\n" +
+                "Sec-Fetch-Site: same-site\n" +
+                "Sec-Fetch-Mode: cors\n" +
+                "Sec-Fetch-Dest: empty\n" +
+                "Referer: https://www.baidu.com/s?ie=utf-8&f=8&rsv_bp=1&rsv_idx=1&tn=baidu&wd=%E4%BD%A0%E5%95%8A%E5%A5%BD%E5%95%8A&fenlei=256&oq=asdasdasdadasdadsasasd&rsv_pq=c9436bcd0006009d&rsv_t=e3beZC6s%2FFwk4k67RcCprUq%2FqPtv4IqdAsp%2FtJQ9iH6FQ2nUrwFhj3YZ29M&rqlang=cn&rsv_dl=tb&rsv_enter=0&rsv_btype=t&rsv_sug3=70&rsv_sug1=4&rsv_sug7=101&rsv_sug2=0&inputT=4157&rsv_sug4=4387\n" +
                 "Accept-Encoding: gzip, deflate, br\n" +
                 "Accept-Language: zh-CN,zh;q=0.9\n" +
-                "Priority: u=4, i\n" +
+                "Priority: u=1, i\n" +
                 "Connection: keep-alive\n" +
-                "Content-Length: 60\n" +
+                "Accept-Encoding: gzip, deflate, br\n" +
+                "Accept: */*\n" +
+                "Accept-Language: en-US;q=0.9,en;q=0.8\n" +
+                "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.6422.60 Safari/537.36\n" +
+                "Connection: close\n" +
+                "Cache-Control: max-age=0\n" +
                 "Accept-Encoding: gzip, deflate, br\n" +
                 "Accept: */*\n" +
                 "Accept-Language: en-US;q=0.9,en;q=0.8\n" +
@@ -262,7 +276,7 @@ public class RawHttpSender {
                 "Connection: close\n" +
                 "Cache-Control: max-age=0\n" +
                 "\n" +
-                "test=123";
+                "{\"message\":{\"inputMethod\":\"chat_search\",\"isRebuild\":false,\"content\":{\"query\":\"你啊好啊\",\"qtype\":0},\"searchInfo\":{\"srcid\":\"279\",\"order\":\"1\",\"tplname\":\"wenda_generate\",\"strategy\":\"\",\"ori_lid\":\"\",\"re_rank\":\"\",\"lid\":\"15060897762294323258\",\"qid\":\"15060897762294323258\",\"viscate_qid\":\"\"},\"source\":\"ala_279\",\"from\":\"apage_dqa\",\"dqaRewrite\":{}}}";
 
         String response = CharsetUtils.bytesToString(RawHttpSender.getInstance().sendRawRequest(request, true));
         System.out.println(response);
