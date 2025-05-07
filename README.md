@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <a href="https://ysneko.github.io">
+  <a href="https://y5neko.github.io">
     <img src="https://img.shields.io/static/v1?label=Powered%20by&message=Y5neKO&color=green" alt="Author">
   </a>
   <a href="https://www.java.com">
